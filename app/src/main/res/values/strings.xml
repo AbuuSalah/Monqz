@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">منقذ</string>
+    <string name="accessibility_description">يلتقط ضغطة ريموت AB Shutter3 فقط لتشغيل إنذار المساعدة. لا يقرأ محتوى الشاشة.</string>
+</resources>

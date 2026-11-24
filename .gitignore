@@ -1,0 +1,20 @@
+# Gradle and Android build outputs
+.gradle/
+**/build/
+local.properties
+
+# Android Studio / IDE state
+.idea/
+*.iml
+.DS_Store
+
+# Generated packages and local signing material
+*.apk
+*.aab
+*.jks
+*.keystore
+key.properties
+
+# Local crash and profiling output
+*.hprof
+captures/
