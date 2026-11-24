@@ -22,6 +22,16 @@ The alarm is posted as a high-importance notification separate from the persiste
 
 Testing on these devices does not guarantee the same behavior on every Android version or manufacturer skin. Background-service and full-screen-notification rules vary by device and system settings.
 
+## Hardware used
+
+Monqz was developed and tested with the **AB Shutter3 Bluetooth camera remote** shown below. It is a small, battery-powered Bluetooth camera shutter that pairs with Android as an input device. In this project, its button is used as the patient's help button.
+
+![AB Shutter3 Bluetooth camera remote used with Monqz](docs/images/ab-shutter3.jpg)
+
+Product details and seller listing: [AB Shutter3 Bluetooth remote on Amazon.eg](https://www.amazon.eg/dp/B0BXQP9815).
+
+The product image is included for identification; the model and behavior can vary between sellers and hardware revisions.
+
 ## Requirements
 
 - Android 8.0 (API 26) or later.
@@ -82,4 +92,3 @@ The alarm runs locally on the device. The app does not upload data to a server. 
 ## License
 
 No license is included yet. Add a license file before reusing or distributing this project under an open-source license.
-
