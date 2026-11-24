@@ -1,84 +1,85 @@
-# منقذ | Monqz
+# Monqz (منقذ)
 
-تطبيق أندرويد يحوّل ريموت الكاميرا الصغير **AB Shutter3** إلى زر طلب مساعدة. عند ضغط الزر، يشغّل التطبيق إنذارًا صوتيًا متكررًا على الهاتف أو التابلت، ويفتح شاشة إنذار كبيرة فوق شاشة القفل. يمكن إعداد رقم مرافق اختياري لإرسال رسالة SMS عند تشغيل الإنذار.
+Monqz turns a small **AB Shutter3 Bluetooth camera remote** into a help button. Pressing the remote starts a repeating local alarm and displays a large alarm screen on an Android phone or tablet. An optional emergency contact can receive an SMS when the alarm starts.
 
-> هذا مشروع مساعدة شخصي يعتمد على ريموت تصوير استهلاكي. لا يُعد جهازًا طبيًا أو نظام استغاثة مضمونًا، ولا يتصل تلقائيًا بخدمات الطوارئ.
+> This is a personal assistance project built around a consumer camera remote. It is not a certified medical device or a guaranteed emergency-response system, and it does not call emergency services.
 
-## الفكرة وطريقة العمل
+## How it works
 
-ريموت AB Shutter3 مصمم أساسًا لالتقاط الصور. عند إقرانه، يظهر كجهاز إدخال Bluetooth ويرسل ضغطة مثل `VOLUME_UP` أو `CAMERA` أو `ENTER`. يستخدم منقذ خدمة إمكانية الوصول لالتقاط هذه الضغطة حتى عندما يكون تطبيق آخر في المقدمة، ثم يطلب من خدمة المراقبة تشغيل الإنذار.
+The AB Shutter3 is designed to trigger a phone camera. When paired, Android exposes it as a Bluetooth input device. Depending on the phone and remote settings, its button sends a key such as `VOLUME_UP`, `CAMERA`, or `ENTER`. Monqz uses an Android AccessibilityService to capture supported key presses while another app is in the foreground and tells the monitoring service to start the alarm.
 
-على بعض الأجهزة، لا تصل ضغطة الريموت من مسار مفاتيح النظام عندما تكون الشاشة مطفأة. لذلك يراقب التطبيق أيضًا تغيّر مستوى صوت الوسائط أثناء تشغيل مسار صامت. إذا رصد زيادة صوت، يشغّل الإنذار. ويستخدم خدمة أمامية وإشعار حالة دائمًا ومراقبة BLE لإعادة محاولة الاتصال عند الانقطاع.
+On some devices, the remote key event is not delivered to the app while the screen is off. Monqz also watches media-volume changes while a silent media stream is active. If it detects a volume increase, it starts the alarm. A foreground service keeps monitoring active, tracks the input-device and BLE connection states separately, and retries BLE connection after a drop.
 
-عند تشغيل الإنذار، ينشر التطبيق إشعارًا عالي الأهمية بإشعار إنذار مستقل عن إشعار الخدمة الدائم. يطلب الإشعار فتح شاشة الإنذار عند قفل الجهاز أو إطفاء الشاشة. عندما يكون الجهاز مفتوحًا، قد يعرض أندرويد شريط إنذار بدل فتح الشاشة تلقائيًا؛ الضغط على جسم الإشعار يفتح الشاشة الحمراء. زر إيقاف الصوت ظاهر في الإشعار وعلى شاشة الإنذار.
+The alarm is posted as a high-importance notification separate from the persistent monitoring notification. When the device is locked or the display is off, Android can open the full-screen alarm activity over the lock screen. When the device is unlocked, Android may show a persistent heads-up notification instead; tapping the notification body opens the red alarm screen. The user can stop the sound from either the alarm screen or the notification.
 
-## الأجهزة وبيئة التحقق
+## Tested devices and setup
 
-| الجهاز | ما تم التحقق منه |
+| Device | Verification |
 | --- | --- |
-| **Samsung Galaxy Tab A7 (10.4-inch LTE), model SM-T505N**, Android 12 / API 31 | تثبيت التطبيق، واجهة التابلت بالوضع الأفقي، تشغيل الإنذار وظهور شاشة الإنذار الحمراء، وإيقافه من الشاشة. بعد تفعيل خدمة إمكانية الوصول وإعدادات الإشعارات، أكد المستخدم ظهور الشاشة والتابلت مقفولًا. [صفحة دعم Samsung للطراز](https://www.samsung.com/za/support/model/SM-T505NZADXFA/) |
-| **POCO X3 GT** | متابعة الريموت كجهاز إدخال واتصال BLE خلال اختبار مع الشاشة مطفأة لمدة دقيقة تقريبًا. |
-| **AB Shutter3 Bluetooth Remote Shutter** | ريموت كاميرا Bluetooth صغير بزر تصوير واحد، يظهر باسم `AB Shutter3` عند الاقتران، ويعمل كجهاز إدخال يرسل مفتاحًا مثل رفع الصوت. كتيّب الجهاز المصوّر يوضح الضغط المطوّل قرابة 3 ثوانٍ لتشغيله والدخول إلى الاقتران، ويذكر بطارية زر CR2032. |
+| **Samsung Galaxy Tab A7 (10.4-inch LTE), model SM-T505N**, Android 12 / API 31 | Installed and used in landscape. Verified the tablet layout, alarm screen, and stop control. After enabling the AccessibilityService and notification settings, the user confirmed that the red alarm screen appeared with the tablet locked. [Samsung support page for this model](https://www.samsung.com/za/support/model/SM-T505NZADXFA/) |
+| **POCO X3 GT** | Monitored the remote as an input device and checked BLE connection state during an approximately one-minute screen-off run. |
+| **AB Shutter3 Bluetooth Remote Shutter** | The small one-button camera remote used for testing. It appears under the name `AB Shutter3` when paired and acts as an input device that can send a volume-up key. The photographed manual says to hold the button for about three seconds to turn it on and enter pairing mode; it specifies a CR2032 coin-cell battery. |
 
-الاختبار على هذه الأجهزة لا يضمن السلوك نفسه على كل إصدارات أندرويد أو واجهات الشركات. بعض الشركات تقيّد خدمات الخلفية وإشعارات الشاشة الكاملة بطرق تختلف حسب الجهاز وإعداداته.
+Testing on these devices does not guarantee the same behavior on every Android version or manufacturer skin. Background-service and full-screen-notification rules vary by device and system settings.
 
-## المتطلبات
+## Requirements
 
-- Android 8.0 (API 26) أو أحدث.
-- Android Studio حديث، JDK 17، وAndroid SDK 35 للبناء.
-- ريموت AB Shutter3 مقترن بالهاتف أو التابلت عبر Bluetooth.
+- Android 8.0 (API 26) or later.
+- Android Studio, JDK 17, and Android SDK 35 to build.
+- An AB Shutter3 remote paired with the phone or tablet through Bluetooth.
 
-## التثبيت والإعداد
+## Install and configure
 
-1. افتح المشروع في Android Studio، أو ثبّت ملف APK debug الناتج من البناء.
-2. شغّل منقذ، واسمح بإذن Bluetooth والأجهزة القريبة والإشعارات عند طلبها.
-3. فعّل خدمة **استقبال زر ريموت المساعدة** من إعدادات إمكانية الوصول. يحتاج التقاط أزرار الريموت على مستوى النظام إلى هذه الخدمة.
-4. أقرن `AB Shutter3` من إعدادات Bluetooth في أندرويد.
-5. ارجع إلى منقذ واضغط **ابدأ المراقبة**. اترك إشعار المراقبة الدائم ظاهرًا.
-6. استخدم **تجربة الإنذار** قبل الاعتماد عليه، ثم اختبر زر الريموت والشاشة مفتوحة ومقفولة.
-7. لتفعيل رسالة المرافق، أدخل رقمًا بصيغة دولية، واحفظه واسمح بإذن SMS. هذه الخطوة اختيارية.
+1. Open the project in Android Studio, or install a debug APK built from this project.
+2. Launch Monqz and grant the requested Bluetooth / nearby-device and notification permissions.
+3. Enable **استقبال زر ريموت المساعدة** (“Receive help remote button”) in Android Accessibility settings. Capturing the remote's system-wide key events requires this service.
+4. Pair `AB Shutter3` in Android Bluetooth settings.
+5. Return to Monqz and start monitoring. Keep the persistent monitoring notification enabled.
+6. Use **تجربة الإنذار** (“Test alarm”) first, then test the physical remote with the screen both on and locked.
+7. To enable caregiver SMS, enter an international phone number, save it, and grant SMS permission. This is optional.
 
-إذا لم تفتح الشاشة الحمراء عند القفل، تحقق من أن إشعارات منقذ مفعّلة، وأن قناة **إنذار المساعدة** على أهمية عالية. في Android 14 وما بعده، قد يلزم أيضًا السماح لمنقذ باستخدام إشعار الشاشة الكاملة من إعدادات النظام.
+If the red screen does not appear while locked, check that Monqz notifications are enabled and that the **Help alarm** notification channel has high importance. On Android 14 and later, Android may also require permission for Monqz to use full-screen notifications.
 
-## البناء
+## Build
 
-من Android Studio اختر **Build > Make Project** أو ابنِ نسخة debug من الطرفية:
+In Android Studio, choose **Build > Make Project**, or run:
 
 ```bash
 ./gradlew assembleDebug
 ```
 
-على Windows:
+On Windows:
 
 ```powershell
 .\gradlew.bat assembleDebug
 ```
 
-ملف APK الناتج يكون في `app/build/outputs/apk/debug/app-debug.apk`. لا تُرفع ملفات البناء وملفات APK ومفاتيح التوقيع المحلية إلى المستودع؛ أضفناها إلى `.gitignore`.
+The debug APK is written to `app/build/outputs/apk/debug/app-debug.apk`. Build outputs, APKs, and local signing keys are excluded from this repository by `.gitignore`.
 
-## مكونات المشروع
+## Project structure
 
-- `MainActivity.kt`: الواجهة المتجاوبة للهاتف والتابلت، حالة المراقبة، إعدادات الإنذار ورقم المرافق.
-- `ShutterKeyService.kt`: التقاط مفاتيح الريموت عبر خدمة إمكانية الوصول.
-- `MonitorService.kt`: الخدمة الأمامية، صوت الإنذار، مسار الشاشة المطفأة، إشعارات الحالة والإنذار، ومراقبة BLE وإعادة الاتصال.
-- `AlarmActivity.kt`: شاشة الإنذار الحمراء وزر الإيقاف، بتخطيط ملائم للهاتف والتابلت.
-- `AlarmState.kt`: حالة المراقبة والإنذار والتفضيلات المحلية.
-- `BootReceiver.kt`: استعادة المراقبة بعد إعادة تشغيل الجهاز حيث تسمح قيود أندرويد.
-- `SmsStatusReceiver.kt`: تحديث حالة إرسال رسالة المرافق.
+- `MainActivity.kt`: responsive phone/tablet interface, monitoring status, alarm settings, and caregiver number.
+- `ShutterKeyService.kt`: captures remote key events through Android Accessibility.
+- `MonitorService.kt`: foreground monitoring service, repeating alarm, screen-off volume path, notifications, BLE monitoring, and reconnect attempts.
+- `AlarmActivity.kt`: red alarm screen and large stop control, adapted for phone and tablet layouts.
+- `AlarmState.kt`: monitoring, alarm, and local preference state.
+- `BootReceiver.kt`: resumes monitoring after reboot where Android allows it.
+- `SmsStatusReceiver.kt`: updates caregiver SMS delivery status.
 
-## السلوك والقيود المعروفة
+## Known behavior and limitations
 
-- **الاتصال:** يحاول التطبيق إعادة اتصال BLE عند الانقطاع، ويتابع ظهور الريموت كجهاز إدخال. لا يستطيع إجبار أندرويد أو برنامج الريموت على إبقاء الراديو متصلًا دائمًا. نفاد بطارية الريموت أو بعده أو التداخل اللاسلكي قد يمنع وصول ضغطة، بما فيها أول ضغطة بعد انقطاع.
-- **الشاشة مطفأة:** قد لا يميّز أندرويد مصدر رفع الصوت؛ زر الصوت الجانبي للهاتف أو ريموت آخر قد يطلق الإنذار مثل زر AB Shutter3. إذا أعددت SMS، فقد يؤدي ذلك أيضًا لإرسال رسالة غير مقصودة.
-- **الطاقة:** إبقاء مراقبة الخلفية فعالة يستخدم خدمة أمامية وقفلًا جزئيًا للمعالج ومسار صوت صامت، ويستهلك بطارية أكثر. راجع إعدادات توفير البطارية في منقذ وعلى الجهاز.
-- **إعادة التشغيل:** على Android 15، قيود النظام تمنع التطبيق من بدء نوع خدمة التشغيل هذا تلقائيًا مباشرة من حدث الإقلاع؛ افتح منقذ لاستعادة المراقبة بعد إعادة تشغيل التابلت أو الهاتف.
-- **رسائل SMS:** الإرسال يتطلب رقمًا محفوظًا، إذن SMS، شريحة وشبكة قادرتين على الإرسال. قد تُحسب تكلفة الرسالة. الإنذار المحلي لا يحتاج إعداد SMS.
-- **القفل:** شاشة الإنذار لا تتجاوز رمز القفل ولا تفتح الجهاز للمستخدم.
+- **Bluetooth:** Monqz retries BLE connection after disconnects and also checks whether the remote is visible as an input device. It cannot force Android or the remote firmware to keep the radio connected indefinitely. A depleted remote battery, distance, or radio interference may prevent a press from reaching the app, including the first press after an interruption.
+- **Screen-off input:** Android may not identify which device sent a volume-up event. The phone's side volume button or another remote can trigger the alarm just like the AB Shutter3. If SMS is configured, an unintended trigger may also send a message.
+- **Battery use:** Background monitoring uses a foreground service, a partial CPU wake lock, and a silent media stream. This uses additional battery. Review the battery settings in Monqz and on the device.
+- **Reboot:** On Android 15, system restrictions prevent this foreground-service type from starting automatically directly from the boot event. Open Monqz after a reboot to resume saved monitoring.
+- **SMS:** Sending requires a saved number, SMS permission, a capable SIM, and network service. Carrier charges may apply. The local alarm works without SMS setup.
+- **Lock screen:** The alarm screen does not dismiss or bypass the device passcode.
 
-## الخصوصية
+## Privacy
 
-يعمل إنذار الصوت محليًا على الجهاز. لا يرفع التطبيق بيانات إلى خادم. لا تُرسل رسالة SMS إلا بعد إعداد رقم المرافق ومنح إذن الرسائل. يخزن التطبيق هذا الرقم في تفضيلاته المحلية.
+The alarm runs locally on the device. The app does not upload data to a server. An SMS is sent only if a caregiver number is configured and SMS permission is granted. The number is stored in the app's local preferences.
 
-## الترخيص
+## License
 
-لم يُرفق ترخيص بعد. أضف ملف ترخيص قبل إعادة استخدام المشروع أو توزيعه وفق شروط مفتوحة المصدر.
+No license is included yet. Add a license file before reusing or distributing this project under an open-source license.
+
